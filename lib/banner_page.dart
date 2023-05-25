@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/utils/appbroda_placement_handler.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class BannerPage extends StatefulWidget {
   const BannerPage({Key? key}) : super(key: key);
@@ -39,8 +40,8 @@ class _BannerPageState extends State<BannerPage> {
             _isLoaded
                 ? Container(
                     //padding: const EdgeInsets.all(10),
-                    height: _bannerAd!.size.height.toDouble(),
-                    width: _bannerAd!.size.width.toDouble(),
+                    height: _bannerAd.size.height.toDouble(),
+                    width: _bannerAd.size.width.toDouble(),
                     child: AdWidget(ad: _bannerAd),
                   )
                 : Container()
@@ -58,12 +59,19 @@ class _BannerPageState extends State<BannerPage> {
       size: AdSize.mediumRectangle,
       listener: BannerAdListener(
         onAdLoaded: (ad) {
+          Fluttertoast.showToast(
+              msg: "loaded @index: $bannerIndex",
+              toastLength: Toast.LENGTH_SHORT,
+            );
           setState(() {
             _isLoaded = true;
           });
         },
         onAdFailedToLoad: (ad, err) {
-          print("Ad Error ${err}");
+          Fluttertoast.showToast(
+              msg: "failed to load @index: $bannerIndex",
+              toastLength: Toast.LENGTH_SHORT,
+            );
           ad.dispose();
           loadNextAd();
         },
