@@ -63,14 +63,22 @@ class _BannerPageState extends State<BannerPage> {
           });
         },
         onAdFailedToLoad: (ad, err) {
+          print("Ad Error ${err}");
           ad.dispose();
-          bannerIndex++;
-          if(bannerIndex!=bannerPlacement.length){
-            loadBannerAd();
-          }
+          loadNextAd();
         },
         onAdImpression: (Ad ad) {},
       ),
     )..load();
   }
+
+  void loadNextAd(){ 
+  if(bannerIndex==bannerPlacement.length){
+      bannerIndex=0;
+      return;
+  }
+  bannerIndex++;
+  loadBannerAd();
+}
+
 }
