@@ -15,6 +15,7 @@ void main() async{
   await Firebase.initializeApp(
   options: DefaultFirebaseOptions.currentPlatform,
 );
+  // Initialize the utility class
   AppBrodaPlacementHandler.initRemoteConfigAndSavePlacements();
   runApp(const MainApp());
 }

@@ -23,8 +23,7 @@ class _InterstitialPageState extends State<InterstitialPage> {
   }
 
   void initAds() async {
-    interstitialPlacement = await AppBrodaPlacementHandler.loadPlacement(
-        "com_ea_game_pvzfree_row_Interstitial_1");
+    interstitialPlacement =  AppBrodaPlacementHandler.loadPlacement("com_flutter_sample_app_interstitialAds");
     loadInterstitialAd();
   }
 
@@ -79,9 +78,11 @@ class _InterstitialPageState extends State<InterstitialPage> {
             // Keep a reference to the ad so you can show it later.
             _interstitialAd = ad;
             Fluttertoast.showToast(
-              msg: "loaded @index: ${interstitialIndex}",
+              msg: "Interstitial ad loaded @index: $interstitialIndex",
               toastLength: Toast.LENGTH_SHORT,
             );
+            // Reset interstitialIndex to 0
+            interstitialIndex = 0;
             setState(() {
               _isLoaded = true;
             });
@@ -91,12 +92,16 @@ class _InterstitialPageState extends State<InterstitialPage> {
             setState(() {
                 _isLoaded = false;
               });
+            // Load a new ad after a delay, so that an ad is always ready to be displayed
+            Future.delayed(const Duration(milliseconds: 3000), () {
+              loadInterstitialAd();
+            });
             });
           },
           // Called when an ad request failed.
           onAdFailedToLoad: (LoadAdError error) {
             Fluttertoast.showToast(
-              msg: "loading failed @index: ${interstitialIndex}",
+              msg: "Interstitial ad loading failed @index: $interstitialIndex",
               toastLength: Toast.LENGTH_SHORT,
             );
             loadNextAd();
@@ -106,11 +111,11 @@ class _InterstitialPageState extends State<InterstitialPage> {
   }
 
   void loadNextAd() {
-    if (interstitialIndex == interstitialPlacement.length) {
+    interstitialIndex++;
+    if (interstitialIndex >= interstitialPlacement.length) {
       interstitialIndex = 0;
       return;
     }
-    interstitialIndex++;
     loadInterstitialAd();
   }
 }

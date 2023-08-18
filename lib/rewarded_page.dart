@@ -23,8 +23,7 @@ class _RewardedPageState extends State<RewardedPage> {
   }
 
   void initAds() async {
-    rewardedPlacement = await AppBrodaPlacementHandler.loadPlacement("com_ea_game_pvzfree_row_Rewarded_1");
-    print("rewarded placement $rewardedPlacement");
+    rewardedPlacement =  AppBrodaPlacementHandler.loadPlacement("com_flutter_sample_app_rewardedAds");
     loadRewardedAd();
   }
 
@@ -70,6 +69,8 @@ class _RewardedPageState extends State<RewardedPage> {
   }
 
   void loadRewardedAd() {
+    if(rewardedPlacement.isEmpty || rewardedIndex >= rewardedPlacement.length) return;
+
     String adUnitId = rewardedPlacement[rewardedIndex];
     RewardedAd.load(
         adUnitId: adUnitId,
@@ -78,9 +79,11 @@ class _RewardedPageState extends State<RewardedPage> {
           // Called when an ad is successfully received.
           onAdLoaded: (ad) {
             Fluttertoast.showToast(
-              msg: "loaded @index: $rewardedIndex",
+              msg: "Rewarded Ad loaded @index: $rewardedIndex",
               toastLength: Toast.LENGTH_SHORT,
             );
+            // Reset the rewardedIndex to 0
+            rewardedIndex = 0;
             debugPrint('$ad loaded.');
             // Keep a reference to the ad so you can show it later.
             _rewardedAd = ad;
@@ -91,28 +94,32 @@ class _RewardedPageState extends State<RewardedPage> {
             onAdDismissedFullScreenContent: (ad) {
             ad.dispose();
             setState(() {
-                _isLoaded = false;
-              });
+              _isLoaded = false;
+            });
+            // Load a new ad after a delay, so that an ad is always ready to be displayed
+            Future.delayed(const Duration(milliseconds: 3000), () {
+              loadRewardedAd();
+            });
             });
           },
           // Called when an ad request failed.
           onAdFailedToLoad: (LoadAdError error) {
             Fluttertoast.showToast(
-              msg: "failed to load @index: $rewardedIndex",
+              msg: "Rewarded Ad failed to load @index: $rewardedIndex",
               toastLength: Toast.LENGTH_SHORT,
             );
-            debugPrint('RewardedAd failed to load: $error');
+            debugPrint('Rewarded Ad failed to load: $error');
             loadNextAd();
           },
         ));
   }
 
   void loadNextAd() {
-    if (rewardedIndex == rewardedPlacement.length) {
+    rewardedIndex++;
+    if (rewardedIndex >= rewardedPlacement.length) {
       rewardedIndex = 0;
       return;
     }
-    rewardedIndex++;
     loadRewardedAd();
   }
 }

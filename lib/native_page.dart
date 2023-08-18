@@ -23,8 +23,7 @@ class _NativePageState extends State<NativePage> {
   }
 
   void initAds() async {
-    nativePlacement = await AppBrodaPlacementHandler.loadPlacement(
-        "com_ea_game_pvzfree_row_Native_1");
+    nativePlacement = AppBrodaPlacementHandler.loadPlacement("com_flutter_sample_app_nativeAds");
     loadNativeAd();
   }
 
@@ -37,7 +36,7 @@ class _NativePageState extends State<NativePage> {
       body: Center(
         child: Column(
           children: [
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _isLoaded
                 ? ConstrainedBox(
                     constraints: const BoxConstraints(
@@ -46,7 +45,7 @@ class _NativePageState extends State<NativePage> {
                       maxWidth: 400,
                       maxHeight: 200,
                     ),
-                    child: AdWidget(ad: _nativeAd!),
+                    child: AdWidget(ad: _nativeAd),
                   )
                 : Container()
           ],
@@ -56,22 +55,26 @@ class _NativePageState extends State<NativePage> {
   }
 
   void loadNativeAd() {
+    if(nativePlacement.isEmpty || nativeIndex >= nativePlacement.length) return;
+
     String adUnitId = nativePlacement[nativeIndex];
     _nativeAd = NativeAd(
         adUnitId: adUnitId,
         listener: NativeAdListener(
           onAdLoaded: (ad) {
             Fluttertoast.showToast(
-              msg: "loaded @index: $nativeIndex",
+              msg: "Native ad loaded @index: $nativeIndex",
               toastLength: Toast.LENGTH_SHORT,
             );
+            // Reset nativeIndex to 0
+            nativeIndex = 0;
             setState(() {
               _isLoaded = true;
             });
           },
           onAdFailedToLoad: (ad, error) {
             Fluttertoast.showToast(
-              msg: "failed to load @index: $nativeIndex",
+              msg: "Native ad failed to load @index: $nativeIndex",
               toastLength: Toast.LENGTH_SHORT,
             );
             // Dispose the ad here to free resources.
@@ -86,7 +89,7 @@ class _NativePageState extends State<NativePage> {
             // Required: Choose a template.
             templateType: TemplateType.medium,
             // Optional: Customize the ad's style.
-            mainBackgroundColor: Colors.purple,
+            mainBackgroundColor: Colors.white,
             cornerRadius: 10.0,
             callToActionTextStyle: NativeTemplateTextStyle(
                 textColor: Colors.cyan,
@@ -112,11 +115,11 @@ class _NativePageState extends State<NativePage> {
   }
 
   void loadNextAd() {
-    if (nativeIndex == nativePlacement.length) {
+    nativeIndex++;
+    if (nativeIndex >= nativePlacement.length) {
       nativeIndex = 0;
       return;
     }
-    nativeIndex++;
     loadNativeAd();
   }
 }

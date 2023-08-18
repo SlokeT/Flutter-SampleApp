@@ -23,7 +23,7 @@ class _BannerPageState extends State<BannerPage> {
   }
 
   void initAds() async {
-    bannerPlacement = await AppBrodaPlacementHandler.loadPlacement("com_ea_game_pvzfree_row_Banner_1");
+    bannerPlacement =  AppBrodaPlacementHandler.loadPlacement("com_flutter_sample_app_bannerAds");
     loadBannerAd();
   }
 
@@ -36,9 +36,9 @@ class _BannerPageState extends State<BannerPage> {
       body: Center(
         child: Column(
           children: [
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _isLoaded
-                ? Container(
+                ? SizedBox(
                     //padding: const EdgeInsets.all(10),
                     height: _bannerAd.size.height.toDouble(),
                     width: _bannerAd.size.width.toDouble(),
@@ -52,6 +52,8 @@ class _BannerPageState extends State<BannerPage> {
   }
 
   void loadBannerAd() {
+    if(bannerPlacement.isEmpty || bannerIndex >= bannerPlacement.length) return;
+
     String adUnit = bannerPlacement[bannerIndex];
     _bannerAd = BannerAd(
       adUnitId: adUnit,
@@ -60,16 +62,18 @@ class _BannerPageState extends State<BannerPage> {
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           Fluttertoast.showToast(
-              msg: "loaded @index: $bannerIndex",
+              msg: "Banner ad loaded @index: $bannerIndex",
               toastLength: Toast.LENGTH_SHORT,
             );
+          // Reset bannerIndex to 0
+          bannerIndex = 0;
           setState(() {
             _isLoaded = true;
           });
         },
         onAdFailedToLoad: (ad, err) {
           Fluttertoast.showToast(
-              msg: "failed to load @index: $bannerIndex",
+              msg: "Banner ad failed to load @index: $bannerIndex",
               toastLength: Toast.LENGTH_SHORT,
             );
           ad.dispose();
@@ -80,12 +84,12 @@ class _BannerPageState extends State<BannerPage> {
     )..load();
   }
 
-  void loadNextAd(){ 
-  if(bannerIndex==bannerPlacement.length){
+  void loadNextAd(){
+    bannerIndex++;
+    if(bannerIndex >= bannerPlacement.length){
       bannerIndex=0;
       return;
   }
-  bannerIndex++;
   loadBannerAd();
 }
 
