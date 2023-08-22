@@ -4,18 +4,23 @@ class AppBrodaPlacementHandler {
   static void initRemoteConfigAndSavePlacements() async {
     var firebaseRemoteConfig = FirebaseRemoteConfig.instance;
     await firebaseRemoteConfig.setConfigSettings(RemoteConfigSettings(
+      // change these settings as per your requirement
       fetchTimeout: const Duration(seconds: 10),
       minimumFetchInterval: const Duration(seconds: 0),
     ));
 
-      await firebaseRemoteConfig.fetchAndActivate().then((isUpdated) {
-        print('Fetch and activate succeeded!!');
-        if (isUpdated) {
-          print('Updated remote config data found!');
-        } else {
-          print('Remote config data is the same!');
-        }
-      });
+    fetchAndSavePlacements(firebaseRemoteConfig);
+  }
+
+  static void  fetchAndSavePlacements(FirebaseRemoteConfig remoteConfig) async {
+    await remoteConfig.fetchAndActivate().then((isUpdated) {
+      print('Fetch and activate succeeded!!');
+      if (isUpdated) {
+        print('Updated remote config data found!');
+      } else {
+        print('Remote config data is the same!');
+      }
+    });
   }
 
   static List<String> loadPlacement(String key) {

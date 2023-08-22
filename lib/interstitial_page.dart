@@ -66,6 +66,8 @@ class _InterstitialPageState extends State<InterstitialPage> {
   }
 
   void loadInterstitialAd() {
+    if(interstitialPlacement.isEmpty || interstitialIndex >= interstitialPlacement.length) return;
+
     String adUnitId = interstitialPlacement[interstitialIndex];
     InterstitialAd.load(
         adUnitId: adUnitId,
