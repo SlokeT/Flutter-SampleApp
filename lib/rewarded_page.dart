@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application/utils/appbroda_placement_handler.dart';
+import 'package:flutter_application/utils/appbroda_adunit_handler.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -11,7 +11,7 @@ class RewardedPage extends StatefulWidget {
 }
 
 class _RewardedPageState extends State<RewardedPage> {
-  late List<String> rewardedPlacement;
+  late List<String> adUnit;
   late RewardedAd _rewardedAd;
   bool _isLoaded = false;
   int rewardedIndex = 0;
@@ -23,7 +23,7 @@ class _RewardedPageState extends State<RewardedPage> {
   }
 
   void initAds() async {
-    rewardedPlacement =  AppBrodaPlacementHandler.loadPlacement("com_flutter_sample_app_rewardedAds");
+    adUnit =  AppBrodaAdUnitHandler.loadAdUnit("com_flutter_sample_app_rewardedAds");
     loadRewardedAd();
   }
 
@@ -69,9 +69,9 @@ class _RewardedPageState extends State<RewardedPage> {
   }
 
   void loadRewardedAd() {
-    if(rewardedPlacement.isEmpty || rewardedIndex >= rewardedPlacement.length) return;
+    if(adUnit.isEmpty || rewardedIndex >= adUnit.length) return;
 
-    String adUnitId = rewardedPlacement[rewardedIndex];
+    String adUnitId = adUnit[rewardedIndex];
     RewardedAd.load(
         adUnitId: adUnitId,
         request: const AdRequest(),
@@ -116,7 +116,7 @@ class _RewardedPageState extends State<RewardedPage> {
 
   void loadNextAd() {
     rewardedIndex++;
-    if (rewardedIndex >= rewardedPlacement.length) {
+    if (rewardedIndex >= adUnit.length) {
       rewardedIndex = 0;
       return;
     }

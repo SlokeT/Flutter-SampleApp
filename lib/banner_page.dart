@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application/utils/appbroda_placement_handler.dart';
+import 'package:flutter_application/utils/appbroda_adunit_handler.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -11,7 +11,7 @@ class BannerPage extends StatefulWidget {
 }
 
 class _BannerPageState extends State<BannerPage> {
-  late List<String> bannerPlacement;
+  late List<String> adUnit;
   late BannerAd _bannerAd;
   bool _isLoaded = false;
   int bannerIndex = 0;
@@ -23,7 +23,7 @@ class _BannerPageState extends State<BannerPage> {
   }
 
   void initAds() async {
-    bannerPlacement =  AppBrodaPlacementHandler.loadPlacement("com_flutter_sample_app_bannerAds");
+    adUnit =  AppBrodaAdUnitHandler.loadAdUnit("com_flutter_sample_app_bannerAds");
     loadBannerAd();
   }
 
@@ -52,11 +52,11 @@ class _BannerPageState extends State<BannerPage> {
   }
 
   void loadBannerAd() {
-    if(bannerPlacement.isEmpty || bannerIndex >= bannerPlacement.length) return;
+    if(adUnit.isEmpty || bannerIndex >= adUnit.length) return;
 
-    String adUnit = bannerPlacement[bannerIndex];
+    String adUnitId = adUnit[bannerIndex];
     _bannerAd = BannerAd(
-      adUnitId: adUnit,
+      adUnitId: adUnitId,
       request: const AdRequest(),
       size: AdSize.mediumRectangle,
       listener: BannerAdListener(
@@ -86,7 +86,7 @@ class _BannerPageState extends State<BannerPage> {
 
   void loadNextAd(){
     bannerIndex++;
-    if(bannerIndex >= bannerPlacement.length){
+    if(bannerIndex >= adUnit.length){
       bannerIndex=0;
       return;
   }
