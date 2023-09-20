@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application/utils/appbroda_placement_handler.dart';
+import 'package:flutter_application/utils/appbroda_adunit_handler.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -11,7 +11,7 @@ class NativePage extends StatefulWidget {
 }
 
 class _NativePageState extends State<NativePage> {
-  late List<String> nativePlacement;
+  late List<String> adUnit;
   late NativeAd _nativeAd;
   bool _isLoaded = false;
   int nativeIndex = 0;
@@ -23,7 +23,7 @@ class _NativePageState extends State<NativePage> {
   }
 
   void initAds() async {
-    nativePlacement = AppBrodaPlacementHandler.loadPlacement("com_flutter_sample_app_nativeAds");
+    adUnit = AppBrodaAdUnitHandler.loadAdUnit("com_flutter_sample_app_nativeAds");
     loadNativeAd();
   }
 
@@ -55,9 +55,9 @@ class _NativePageState extends State<NativePage> {
   }
 
   void loadNativeAd() {
-    if(nativePlacement.isEmpty || nativeIndex >= nativePlacement.length) return;
+    if(adUnit.isEmpty || nativeIndex >= adUnit.length) return;
 
-    String adUnitId = nativePlacement[nativeIndex];
+    String adUnitId = adUnit[nativeIndex];
     _nativeAd = NativeAd(
         adUnitId: adUnitId,
         listener: NativeAdListener(
@@ -116,7 +116,7 @@ class _NativePageState extends State<NativePage> {
 
   void loadNextAd() {
     nativeIndex++;
-    if (nativeIndex >= nativePlacement.length) {
+    if (nativeIndex >= adUnit.length) {
       nativeIndex = 0;
       return;
     }

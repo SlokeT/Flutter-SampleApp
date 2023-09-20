@@ -1,7 +1,7 @@
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 
-class AppBrodaPlacementHandler {
-  static void initRemoteConfigAndSavePlacements() async {
+class AppBrodaAdUnitHandler {
+  static void initRemoteConfigAndSaveAdUnits() async {
     final firebaseRemoteConfig = FirebaseRemoteConfig.instance;
     await firebaseRemoteConfig.setConfigSettings(RemoteConfigSettings(
       // change these settings as per your requirement
@@ -11,11 +11,11 @@ class AppBrodaPlacementHandler {
     await firebaseRemoteConfig.fetchAndActivate();
   }
 
-  static void fetchAndSavePlacements() async {
+  static void fetchAndSaveAdUnits() async {
     await FirebaseRemoteConfig.instance.fetchAndActivate();
   }
 
-  static List<String> loadPlacement(String key) {
+  static List<String> loadAdUnit(String key) {
     String? value = FirebaseRemoteConfig.instance.getString(key);
     if (value.isEmpty) return [];
 

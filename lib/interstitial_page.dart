@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application/utils/appbroda_placement_handler.dart';
+import 'package:flutter_application/utils/appbroda_adunit_handler.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -11,7 +11,7 @@ class InterstitialPage extends StatefulWidget {
 }
 
 class _InterstitialPageState extends State<InterstitialPage> {
-  late List<String> interstitialPlacement;
+  late List<String> adUnit;
   late InterstitialAd _interstitialAd;
   bool _isLoaded = false;
   int interstitialIndex = 0;
@@ -23,7 +23,7 @@ class _InterstitialPageState extends State<InterstitialPage> {
   }
 
   void initAds() async {
-    interstitialPlacement =  AppBrodaPlacementHandler.loadPlacement("com_flutter_sample_app_interstitialAds");
+    adUnit =  AppBrodaAdUnitHandler.loadAdUnit("com_flutter_sample_app_interstitialAds");
     loadInterstitialAd();
   }
 
@@ -66,9 +66,9 @@ class _InterstitialPageState extends State<InterstitialPage> {
   }
 
   void loadInterstitialAd() {
-    if(interstitialPlacement.isEmpty || interstitialIndex >= interstitialPlacement.length) return;
+    if(adUnit.isEmpty || interstitialIndex >= adUnit.length) return;
 
-    String adUnitId = interstitialPlacement[interstitialIndex];
+    String adUnitId = adUnit[interstitialIndex];
     InterstitialAd.load(
         adUnitId: adUnitId,
         request: const AdRequest(),
@@ -114,7 +114,7 @@ class _InterstitialPageState extends State<InterstitialPage> {
 
   void loadNextAd() {
     interstitialIndex++;
-    if (interstitialIndex >= interstitialPlacement.length) {
+    if (interstitialIndex >= adUnit.length) {
       interstitialIndex = 0;
       return;
     }

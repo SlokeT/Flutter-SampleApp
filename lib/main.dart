@@ -4,7 +4,7 @@ import 'package:flutter_application/banner_page.dart';
 import 'package:flutter_application/interstitial_page.dart';
 import 'package:flutter_application/native_page.dart';
 import 'package:flutter_application/rewarded_page.dart';
-import 'package:flutter_application/utils/appbroda_placement_handler.dart';
+import 'package:flutter_application/utils/appbroda_adunit_handler.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'firebase_options.dart';
 
@@ -16,7 +16,7 @@ void main() async{
   options: DefaultFirebaseOptions.currentPlatform,
 );
   // Initialize the utility class
-  AppBrodaPlacementHandler.initRemoteConfigAndSavePlacements();
+  AppBrodaAdUnitHandler.initRemoteConfigAndSaveAdUnits();
   runApp(const MainApp());
 }
 
