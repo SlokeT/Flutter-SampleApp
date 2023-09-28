@@ -6,8 +6,10 @@ class AppBrodaAdUnitHandler {
     await firebaseRemoteConfig.setConfigSettings(RemoteConfigSettings(
       // change these settings as per your requirement
       fetchTimeout: const Duration(seconds: 10),
-      minimumFetchInterval: const Duration(seconds: 0),
+      minimumFetchInterval: const Duration(seconds: 900),
     ));
+
+    // set the minimum fetch interval to 0 during testing
     await firebaseRemoteConfig.fetchAndActivate();
   }
 
