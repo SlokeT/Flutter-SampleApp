@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/utils/appbroda_adunit.dart';
 import 'package:flutter_application/utils/appbroda_adunit_handler.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -11,10 +12,9 @@ class InterstitialPage extends StatefulWidget {
 }
 
 class _InterstitialPageState extends State<InterstitialPage> {
-  late List<String> adUnit;
   late InterstitialAd _interstitialAd;
+  late AppBrodaAdUnit appBrodaAdUnit;
   bool _isLoaded = false;
-  int interstitialIndex = 0;
 
   @override
   void initState() {
@@ -23,8 +23,7 @@ class _InterstitialPageState extends State<InterstitialPage> {
   }
 
   void initAds() async {
-    adUnit =  AppBrodaAdUnitHandler.loadAdUnit("com_flutter_sample_app_interstitialAds");
-    loadInterstitialAd();
+    interstitialAdLoader();
   }
 
   @override
@@ -65,10 +64,14 @@ class _InterstitialPageState extends State<InterstitialPage> {
     );
   }
 
-  void loadInterstitialAd() {
-    if(adUnit.isEmpty || interstitialIndex >= adUnit.length) return;
+  void interstitialAdLoader() {
+    appBrodaAdUnit = AppBrodaAdUnitHandler.createAppBrodaAdUnit(
+        null, "com_flutter_sample_app_interstitialAds");
+    AppBrodaAdUnitHandler.load(appBrodaAdUnit, loadInterstitialAd);
+  }
 
-    String adUnitId = adUnit[interstitialIndex];
+  void loadInterstitialAd() {
+    String adUnitId = AppBrodaAdUnitHandler.getUnitId(appBrodaAdUnit);
     InterstitialAd.load(
         adUnitId: adUnitId,
         request: const AdRequest(),
@@ -80,11 +83,10 @@ class _InterstitialPageState extends State<InterstitialPage> {
             // Keep a reference to the ad so you can show it later.
             _interstitialAd = ad;
             Fluttertoast.showToast(
-              msg: "Interstitial ad loaded @index: $interstitialIndex",
+              msg: "Interstitial ad loaded @index: ${appBrodaAdUnit.getIndex()}",
               toastLength: Toast.LENGTH_SHORT,
             );
-            // Reset interstitialIndex to 0
-            interstitialIndex = 0;
+            AppBrodaAdUnitHandler.resetAppBrodaAdUnit(appBrodaAdUnit);
             setState(() {
               _isLoaded = true;
             });
@@ -94,30 +96,17 @@ class _InterstitialPageState extends State<InterstitialPage> {
             setState(() {
                 _isLoaded = false;
               });
-            // Load a new ad after a delay, so that an ad is always ready to be displayed
-            Future.delayed(const Duration(milliseconds: 3000), () {
-              loadInterstitialAd();
-            });
             });
           },
           // Called when an ad request failed.
           onAdFailedToLoad: (LoadAdError error) {
             Fluttertoast.showToast(
-              msg: "Interstitial ad loading failed @index: $interstitialIndex",
+              msg: "Interstitial ad loading failed @index: ${appBrodaAdUnit.getIndex()}",
               toastLength: Toast.LENGTH_SHORT,
             );
-            loadNextAd();
+            AppBrodaAdUnitHandler.loadNextAd(appBrodaAdUnit);
           },
           
         ));
-  }
-
-  void loadNextAd() {
-    interstitialIndex++;
-    if (interstitialIndex >= adUnit.length) {
-      interstitialIndex = 0;
-      return;
-    }
-    loadInterstitialAd();
   }
 }
