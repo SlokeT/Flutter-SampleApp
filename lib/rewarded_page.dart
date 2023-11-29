@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/utils/appbroda_adunit.dart';
 import 'package:flutter_application/utils/appbroda_adunit_handler.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -13,8 +14,8 @@ class RewardedPage extends StatefulWidget {
 class _RewardedPageState extends State<RewardedPage> {
   late List<String> adUnit;
   late RewardedAd _rewardedAd;
+  late AppBrodaAdUnit appBrodaAdUnit;
   bool _isLoaded = false;
-  int rewardedIndex = 0;
 
   @override
   void initState() {
@@ -23,8 +24,7 @@ class _RewardedPageState extends State<RewardedPage> {
   }
 
   void initAds() async {
-    adUnit =  AppBrodaAdUnitHandler.loadAdUnit("com_flutter_sample_app_rewardedAds");
-    loadRewardedAd();
+    rewardedAdLoader();
   }
 
   @override
@@ -68,10 +68,14 @@ class _RewardedPageState extends State<RewardedPage> {
     );
   }
 
-  void loadRewardedAd() {
-    if(adUnit.isEmpty || rewardedIndex >= adUnit.length) return;
+  void rewardedAdLoader() {
+    appBrodaAdUnit = AppBrodaAdUnitHandler.createAppBrodaAdUnit(
+        null, "com_flutter_sample_app_rewardedAds");
+    AppBrodaAdUnitHandler.load(appBrodaAdUnit, loadRewardedAd);
+  }
 
-    String adUnitId = adUnit[rewardedIndex];
+  void loadRewardedAd() {
+    String adUnitId = AppBrodaAdUnitHandler.getUnitId(appBrodaAdUnit);
     RewardedAd.load(
         adUnitId: adUnitId,
         request: const AdRequest(),
@@ -79,11 +83,10 @@ class _RewardedPageState extends State<RewardedPage> {
           // Called when an ad is successfully received.
           onAdLoaded: (ad) {
             Fluttertoast.showToast(
-              msg: "Rewarded Ad loaded @index: $rewardedIndex",
+              msg: "Rewarded Ad loaded @index: ${appBrodaAdUnit.getIndex()}",
               toastLength: Toast.LENGTH_SHORT,
             );
-            // Reset the rewardedIndex to 0
-            rewardedIndex = 0;
+            AppBrodaAdUnitHandler.resetAppBrodaAdUnit(appBrodaAdUnit);
             debugPrint('$ad loaded.');
             // Keep a reference to the ad so you can show it later.
             _rewardedAd = ad;
@@ -96,30 +99,17 @@ class _RewardedPageState extends State<RewardedPage> {
             setState(() {
               _isLoaded = false;
             });
-            // Load a new ad after a delay, so that an ad is always ready to be displayed
-            Future.delayed(const Duration(milliseconds: 3000), () {
-              loadRewardedAd();
-            });
             });
           },
           // Called when an ad request failed.
           onAdFailedToLoad: (LoadAdError error) {
             Fluttertoast.showToast(
-              msg: "Rewarded Ad failed to load @index: $rewardedIndex",
+              msg: "Rewarded Ad failed to load @index: ${appBrodaAdUnit.getIndex()}",
               toastLength: Toast.LENGTH_SHORT,
             );
             debugPrint('Rewarded Ad failed to load: $error');
-            loadNextAd();
+            AppBrodaAdUnitHandler.loadNextAd(appBrodaAdUnit);
           },
         ));
-  }
-
-  void loadNextAd() {
-    rewardedIndex++;
-    if (rewardedIndex >= adUnit.length) {
-      rewardedIndex = 0;
-      return;
-    }
-    loadRewardedAd();
   }
 }

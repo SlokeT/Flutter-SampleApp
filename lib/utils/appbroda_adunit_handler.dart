@@ -1,4 +1,5 @@
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:flutter_application/utils/appbroda_adunit.dart';
 
 class AppBrodaAdUnitHandler {
   static void initRemoteConfigAndSaveAdUnits() async {
@@ -22,6 +23,47 @@ class AppBrodaAdUnitHandler {
     if (value.isEmpty) return [];
 
     return _convertToArray(value);
+  }
+
+  static void loadNextAd(AppBrodaAdUnit appBrodaAdUnit) {
+    void Function() adLoader = appBrodaAdUnit.getAdLoader();
+    if (appBrodaAdUnit.nextAdUnitAvailable() && !appBrodaAdUnit.loadingPaused) {
+      appBrodaAdUnit.incrementIndex();
+      adLoader();
+      return;
+    }
+    appBrodaAdUnit.reset();
+  }
+
+  static String getUnitId(AppBrodaAdUnit appBrodaAdUnit) {
+    return appBrodaAdUnit.getCurrentAdUnit() ?? "";
+  }
+
+  static void loadAndRefresh(AppBrodaAdUnit appBrodaAdUnit, void Function() adLoader, int defaultRefreshRate) {
+    appBrodaAdUnit.setAdLoader(adLoader);
+    appBrodaAdUnit.loadAndRefresh(defaultRefreshRate);
+  }
+
+  static void load(AppBrodaAdUnit appBrodaAdUnit, void Function() adLoader) {
+    appBrodaAdUnit.setAdLoader(adLoader);
+    appBrodaAdUnit.load();
+  }
+
+  static AppBrodaAdUnit createAppBrodaAdUnit(AppBrodaAdUnit? appBrodaAdUnit, String adUnit) {
+    if (appBrodaAdUnit != null) {
+      appBrodaAdUnit.stopAdLoading();
+    }
+    return AppBrodaAdUnit(adUnit);
+  }
+
+  static void resetAppBrodaAdUnit(AppBrodaAdUnit appBrodaAdUnit) {
+    appBrodaAdUnit.reset();
+  }
+
+  static void stopLoading(AppBrodaAdUnit appBrodaAdUnit) {
+    if (appBrodaAdUnit != null) {
+      appBrodaAdUnit.stopAdLoading();
+    }
   }
 
    static List<String> _convertToArray(String value) {

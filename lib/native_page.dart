@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/utils/appbroda_adunit.dart';
 import 'package:flutter_application/utils/appbroda_adunit_handler.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -10,21 +11,38 @@ class NativePage extends StatefulWidget {
   State<NativePage> createState() => _NativePageState();
 }
 
-class _NativePageState extends State<NativePage> {
+class _NativePageState extends State<NativePage> with WidgetsBindingObserver {
   late List<String> adUnit;
   late NativeAd _nativeAd;
+  late AppBrodaAdUnit appBrodaAdUnit;
   bool _isLoaded = false;
-  int nativeIndex = 0;
 
   @override
   void initState() {
-    initAds();
     super.initState();
+    initAds();
+    WidgetsBinding.instance.addObserver(this);
   }
 
   void initAds() async {
-    adUnit = AppBrodaAdUnitHandler.loadAdUnit("com_flutter_sample_app_nativeAds");
-    loadNativeAd();
+    nativeAdLoader();
+  }
+
+  @override
+  void dispose() {
+    AppBrodaAdUnitHandler.stopLoading(appBrodaAdUnit);
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused) {
+      AppBrodaAdUnitHandler.stopLoading(appBrodaAdUnit);
+    } else if (state == AppLifecycleState.resumed) {
+      nativeAdLoader();
+    }
   }
 
   @override
@@ -54,33 +72,39 @@ class _NativePageState extends State<NativePage> {
     );
   }
 
-  void loadNativeAd() {
-    if(adUnit.isEmpty || nativeIndex >= adUnit.length) return;
+  void nativeAdLoader() {
+    appBrodaAdUnit = AppBrodaAdUnitHandler.createAppBrodaAdUnit(
+        null, "com_flutter_sample_app_nativeAds");
+    AppBrodaAdUnitHandler.loadAndRefresh(appBrodaAdUnit, loadNativeAd, 15);
+  }
 
-    String adUnitId = adUnit[nativeIndex];
+  void loadNativeAd() {
+    setState(() {
+      _isLoaded = false;
+    });
+    String adUnitId =  AppBrodaAdUnitHandler.getUnitId(appBrodaAdUnit);
     _nativeAd = NativeAd(
         adUnitId: adUnitId,
         listener: NativeAdListener(
           onAdLoaded: (ad) {
             Fluttertoast.showToast(
-              msg: "Native ad loaded @index: $nativeIndex",
+              msg: "Native ad loaded @index: ${appBrodaAdUnit.getIndex()}",
               toastLength: Toast.LENGTH_SHORT,
             );
-            // Reset nativeIndex to 0
-            nativeIndex = 0;
+            AppBrodaAdUnitHandler.resetAppBrodaAdUnit(appBrodaAdUnit);
             setState(() {
               _isLoaded = true;
             });
           },
           onAdFailedToLoad: (ad, error) {
             Fluttertoast.showToast(
-              msg: "Native ad failed to load @index: $nativeIndex",
+              msg: "Native ad failed to load @index: ${appBrodaAdUnit.getIndex()}",
               toastLength: Toast.LENGTH_SHORT,
             );
             // Dispose the ad here to free resources.
             debugPrint('$NativeAd failed to load: $error');
             ad.dispose();
-            loadNextAd();
+            AppBrodaAdUnitHandler.loadNextAd(appBrodaAdUnit);
           },
         ),
         request: const AdRequest(),
@@ -112,14 +136,5 @@ class _NativePageState extends State<NativePage> {
                 style: NativeTemplateFontStyle.normal,
                 size: 16.0)))
       ..load();
-  }
-
-  void loadNextAd() {
-    nativeIndex++;
-    if (nativeIndex >= adUnit.length) {
-      nativeIndex = 0;
-      return;
-    }
-    loadNativeAd();
   }
 }
